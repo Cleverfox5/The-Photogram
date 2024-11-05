@@ -1,0 +1,12 @@
+.myBtn{
+    padding: 10px 15px 10px;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.myBtn:hover{
+    background: #EAE9ED;
+}

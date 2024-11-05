@@ -1,0 +1,63 @@
+.friend-card {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+.friend-card:hover{
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.friend-photo {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  margin-right: 15px;
+  object-fit: cover;
+    object-position: center;
+}
+
+.friend-info {
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.friend-name {
+  font-size: 18px;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: 0;
+}
+
+.add-friend-button{
+  padding: 8px 12px;
+  background-color: rgb(6, 184, 6);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-friend-button:hover{
+  background-color: rgb(33, 136, 33);
+}
+
+.delete-friend-button{
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-friend-button:hover{
+  background-color: rgb(197, 34, 34);
+}
