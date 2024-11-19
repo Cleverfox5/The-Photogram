@@ -9,7 +9,7 @@ const FriendSearch = () => {
   const [settings, setSettings] = useState({ substr: '', limit: 5, offset: 0 });
   const [users, setUsers] = useState([]);
   const [isEnough, setIsEnough] = useState(false);
-  const [isFirst, setIsFitst] = useState(true);
+  const [isFirst, setIsFirst] = useState(true);
   const paginationElement = useRef();
   const observer = useRef();
 
@@ -45,7 +45,7 @@ const FriendSearch = () => {
 
   const loadUsers = async (element) => {
     element.preventDefault();
-    setIsFitst(true);
+    setIsFirst(true);
     try {
       setUsers([]);
       setIsEnough(false);
@@ -59,7 +59,7 @@ const FriendSearch = () => {
         }
 
         setSettings({ ...settings, offset: 0 });
-        setIsFitst(false);
+        setIsFirst(false);
       }
     }
     catch (error) {

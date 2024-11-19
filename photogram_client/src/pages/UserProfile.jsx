@@ -3,17 +3,48 @@ import Profile from "../components/Profile/Profile";
 import PostService from "../API/PostService";
 import { useParams } from "react-router-dom";
 
-
 const posts = [
-    { id: 1, src: 'https://via.placeholder.com/600x400/ff7f7f', alt: 'Пост 1' },
-    { id: 2, src: 'https://via.placeholder.com/300x500/7f7fff', alt: 'Пост 2' },
-    { id: 3, src: 'https://via.placeholder.com/800x300/7fff7f', alt: 'Пост 3' },
-    { id: 4, src: 'https://via.placeholder.com/600x600/ffff7f', alt: 'Пост 4' }
+    {
+        id: 1,
+        photo: "https://upload.wikimedia.org/wikipedia/commons/5/55/Uzkoe2.jpg",
+        description: "Это пример описания поста. Здесь можно написать любую информацию.",
+        date: "15 ноября 2024",
+        avatar: "https://via.placeholder.com/48",
+        nickname: "example_user"
+    },
+    {
+        id: 2,
+        photo: "https://via.placeholder.com/600x600/ffff7f",
+        description: "Это пример описания поста. Здесь можно написать любую информацию.",
+        date: "15 ноября 2024",
+        avatar: "https://via.placeholder.com/48",
+        nickname: "example_user"
+    },
+    {
+        id: 3,
+        photo: "https://via.placeholder.com/300x500/7f7fff",
+        description: "Это пример описания поста. Здесь можно написать любую информацию.",
+        date: "15 ноября 2024",
+        avatar: "https://via.placeholder.com/48",
+        nickname: "example_user"
+    },
+    {
+        id: 4,
+        photo: "https://via.placeholder.com/300x500/7f7fff",
+        description: "Это пример описания поста. Здесь можно написать любую информацию.",
+        date: "15 ноября 2024",
+        avatar: "https://via.placeholder.com/48",
+        nickname: "example_user"
+    },
+    {
+        id: 5,
+        photo: "https://via.placeholder.com/600x400",
+        description: "Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. v v v Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.  Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.Очень длинное описание, которое должно быть обрезано, если превышает лимит текста. Очень длинное описание, которое должно быть обрезано, если превышает лимит текста.",
+        date: "15 ноября 2024",
+        avatar: "https://via.placeholder.com/48",
+        nickname: "example_user"
+    }
 ];
-
-const getHelloWorld = async () => {
-    console.log("В http запросе строчка: " + await PostService.getDate())
-}
 
 const UserProfile = () => {
     const { nickname } = useParams();
@@ -21,8 +52,7 @@ const UserProfile = () => {
     const [urlPhotoUser, setUrlPhotoUser] = useState(null);
     const [status, setStatus] = useState('stranger');
 
-    
-    getHelloWorld()
+
     useEffect(() => {
         const fetchData = async () => {
             try {
