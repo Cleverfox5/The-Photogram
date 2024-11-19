@@ -192,10 +192,10 @@ std::string WorkWithPostgreSQL::checkPassword(std::string login, std::string pas
 		pqxx::work work(*connect);
 		pqxx::row res;
 
-		/*res = work.exec_prepared1("getNickname",
+		res = work.exec_prepared1("getNickname",
 			18);
 
-		std::cout << res[0].c_str();*/
+		std::cout << res[0].c_str();
 
 		res = work.exec_prepared1("getHashPassword",
 			login);

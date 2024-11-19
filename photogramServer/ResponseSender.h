@@ -15,7 +15,6 @@ public:
 	void sendAnswerOK(std::string& request, std::string refreshToken, std::string accessToken, std::string nickname);
 	void sendAnswerOKBinData(std::string& request, std::string type, std::vector<char>& binData);
 	void sendAnswerOptions(std::string& request);
-	void sendHttp401(std::string& request, std::string textError);
 	void sendError(std::string& request, std::string errorCode, std::string textEror);
 };
 /*

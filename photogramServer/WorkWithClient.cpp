@@ -24,7 +24,7 @@ void WorkWithClient::run() {
 		std::cerr << e.what() << std::endl;
 		if (clientSocket != INVALID_SOCKET)
 			closesocket(clientSocket);
-		return;//поменять
+		return;
 	}
 
 	std::string request;
@@ -169,6 +169,7 @@ void WorkWithClient::run() {
 						std::string accessToken = token.createAccessToken(id, secret);
 						std::string nickname = dbAPI->getNicknameById(id);
 
+						std::cout << "tocken changed\n";
 						sendResponse.sendAnswerOK(request, refreshToken, accessToken, nickname);
 					}
 					catch (const std::exception& e) {
@@ -251,8 +252,6 @@ void WorkWithClient::run() {
 
 					std::unordered_map<std::string, std::string> properties;
 					try {
-
-						nlohmann::json json;
 						utilsRequest.URLParser(request, properties, sizeof("GET ") - 1);
 						std::string id = properties.begin()->second;
 						
@@ -338,6 +337,22 @@ void WorkWithClient::run() {
 							sendResponse.sendError(request, "404", "Not found");
 						else
 							sendResponse.sendError(request, "500", "Internal Server Error");
+					}
+				}
+				else if (request.substr(4, sizeof("/getIdForServerByAccess") - 1) == "/getIdForServerByAccess") {
+					std::string id;
+					try {
+						id = checkAccesstoken(request, token, utilsRequest, sendResponse);
+					}
+					catch (const std::exception& e) { continue; }
+
+					try {
+						nlohmann::json body;
+						body["id"] = id;
+						sendResponse.sendAnswerOK(request, body);
+					}
+					catch (const std::exception& e) {
+						sendResponse.sendError(request, "500", "Internal Server Error");
 					}
 				}
 			}

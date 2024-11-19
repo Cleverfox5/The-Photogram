@@ -74,17 +74,6 @@ void ResponseSender::sendAnswerOptions(std::string& request) {
 	request.clear();
 }
 
-void ResponseSender::sendHttp401(std::string & request, std::string textEror) {
-	std::string clientAddres = utils.getValueSomeHeader(request, "Origin: ");
-	std::string response = "HTTP/1.1 401 Unauthorized\r\n"
-		"Access-Control-Allow-Origin: " + clientAddres + "\r\n"
-		"Content-Type: application/json\r\n"
-		"\r\n"
-		"{\"error\": \"" + textEror + "\"}";
-	send(clientSocket, response.c_str(), response.size(), 0);
-	request.clear();
-}
-
 void ResponseSender::sendError(std::string& request, std::string errorCode, std::string textError) {
 	std::string clientAddres = utils.getValueSomeHeader(request, "Origin: ");
 	nlohmann::json bodyJson;
