@@ -37,41 +37,49 @@ void DBclient::delPostPhotoById(const std::string& photo_id) {
 
 void DBclient::delPostById(const std::string& post_id, const std::string& id) {
 	try {
-		connection_->prepare("delPostById", 
+		connection_->prepare("isExistPost",
 			R"(
-				DO $$
-				DECLARE
-					photo_id_del INT;
-				BEGIN
-					IF EXISTS(
-						SELECT 1
-						FROM posts
-						WHERE id = $1 AND user_id = $2
-					)THEN
-						DELETE FROM likes
-						WHERE post_id = $1;
-		
-						SELECT photo_id
-						INTO photo_id_del
-						FROM posts
-						WHERE id = $1;
-		 
-						DELETE FROM posts
-						WHERE id = $1;
-		
-						DELETE FROM post_photos
-						WHERE id = photo_id_del;
-					END IF;
-				END$$;
+				SELECT CASE
+					WHEN EXISTS(
+					SELECT 1
+					FROM posts
+					WHERE id = $1 AND user_id = $2
+					)THEN 'true'
+					ELSE 'false'
+				END CASE;
+			)"
+		);
+		connection_->prepare("delFromLikes", 
+			R"(
+				DELETE FROM likes
+				WHERE post_id = $1;
+			)"
+		);
+		connection_->prepare("delFromPosts",
+			R"(
+				DELETE FROM posts
+				WHERE id = $1;
 			)"
 		);
 
 		pqxx::work work(*connection_);
-		work.exec_prepared0("delPostById", post_id, id);
+		pqxx::row row;
+		row = work.exec_prepared1("isExistPost", post_id, id);
+		std::string result = row[0].c_str();
+		if (result == "true") {
+			work.exec_prepared0("delFromLikes", post_id);
+			work.exec_prepared0("delFromPosts", post_id);
+		}
+		else {
+			throw std::runtime_error("Bad request");
+		}
 		work.commit();
 	}
 	catch (const std::exception & e) {
 		std::cerr << e.what() << std::endl;
+		if (!std::strcmp(e.what(), "Bad request")) {
+			throw std::runtime_error("400");
+		}
 		throw std::runtime_error("500");
 	}
 }
@@ -123,12 +131,9 @@ void DBclient::getPostsList(const std::string& id, const std::string& LIMIT, con
 		pqxx::result result;
 
 		connection_->prepare("getPostsList",R"(
-			WITH selected_users AS(
-				SELECT friend_id
-				FROM friends
-				WHERE user_id = $1
-			)
-			SELECT po.id, u.nickname, po.date_posted, po.post_description, po.like_count, po.photo_id, u.photo_id AS profile_picture_id,
+			SELECT po.id, u.nickname, po.date_posted, 
+			po.post_description, po.like_count, po.photo_id, 
+			u.photo_id AS profile_picture_id,
 			CASE
 			WHEN EXISTS(
 				SELECT 1
@@ -141,7 +146,7 @@ void DBclient::getPostsList(const std::string& id, const std::string& LIMIT, con
 			JOIN users u
 			on u.id = po.user_id
 			WHERE
-			po.user_id IN(SELECT friend_id FROM selected_users)
+			po.user_id IN(SELECT friend_id FROM friends WHERE user_id = $1)
 			OR user_id = $1
 
 			ORDER BY date_posted DESC
@@ -150,6 +155,61 @@ void DBclient::getPostsList(const std::string& id, const std::string& LIMIT, con
 
 		result = work.exec_prepared("getPostsList",
 			id,
+			LIMIT,
+			OFFSET);
+		if (result.empty()) return;
+
+		work.commit();
+
+		for (const auto& row : result) {
+			json jsonElement;
+			jsonElement["post_id"] = row[0].c_str();
+			jsonElement["nickname"] = row[1].c_str();
+			jsonElement["date_posted"] = row[2].c_str();
+			jsonElement["description"] = row[3].c_str();
+			jsonElement["like_count"] = row[4].c_str();
+			jsonElement["photo_id"] = row[5].c_str();
+			jsonElement["profile_picture_id"] = row[6].c_str();
+			jsonElement["is_liked"] = row[7].c_str();
+			json_.push_back(jsonElement);
+		}
+	}
+	catch (const std::exception e) {
+		std::cerr << e.what() << std::endl;
+		throw std::runtime_error("500");
+	}
+}
+
+void DBclient::getPostsListById(const std::string& author_id, const std::string& user_id, const std::string& LIMIT, const std::string& OFFSET, json& json_) {
+	try {
+		pqxx::work work(*connection_);
+		pqxx::result result;
+
+		connection_->prepare("getPostsListById", R"(
+			SELECT po.id, u.nickname, po.date_posted, 
+			po.post_description, po.like_count, po.photo_id, 
+			u.photo_id AS profile_picture_id,
+			CASE
+				WHEN EXISTS(
+					SELECT 1
+					FROM likes
+					WHERE(post_id = po.id AND user_id = $2)
+				) THEN 'true'
+				ELSE 'false'
+			END AS is_liked
+			FROM posts po
+			JOIN users u
+			on u.id = po.user_id
+			WHERE
+			po.user_id = $1
+
+			ORDER BY date_posted DESC
+			LIMIT $3 OFFSET $4;)"
+		);
+
+		result = work.exec_prepared("getPostsListById",
+			author_id,
+			user_id,
 			LIMIT,
 			OFFSET);
 		if (result.empty()) return;

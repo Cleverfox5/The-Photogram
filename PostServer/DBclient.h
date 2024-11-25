@@ -19,6 +19,7 @@ public:
 	void delPostPhotoById(const std::string& photo_id);
 	void delPostById(const std::string& post_id, const std::string& id);
 	void getPostsList(const std::string& id, const std::string& LIMIT, const std::string& OFFSET, json& json_);
+	void getPostsListById(const std::string& author_id, const std::string& user_id, const std::string& LIMIT, const std::string& OFFSET, json& json_);
 	std::vector<char> getPostPhotoById(const std::string& user_id, std::string& type);
 	void likeClicked(const std::string& post_id, const std::string& user_id);
 };

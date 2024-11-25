@@ -22,7 +22,6 @@ TcpConnection::TcpConnection(boost::asio::io_context& io_context_client)
 }
 void TcpConnection::handleRequest() {
     response_ = http::response<http::string_body>();
-    std::cout << request_ << std::endl;
     client_addres = request_["Origin"];
 
     if (request_.method() == http::verb::options) {
@@ -91,6 +90,20 @@ void TcpConnection::handleRequest() {
                             FormRequest::URLParser(target, url_str_arg);
                             json json_;
                             shared_on_self->dbclient_->getPostsList(id, url_str_arg["LIMIT"], url_str_arg["OFFSET"], json_);
+
+                            FormResponse::formResponseJson(shared_on_self->response_, shared_on_self->client_addres, json_);
+                        }
+                        catch (const std::exception& e) {
+                            FormResponse::formResponseError(shared_on_self->response_, shared_on_self->client_addres, http::status::internal_server_error);
+                        }
+                    }
+                    else if (target.find("/getByIdPostsList") != std::string::npos) {
+                        try {
+                            std::string post_id;
+                            std::unordered_map<std::string, std::string> url_str_arg;
+                            FormRequest::URLParser(target, url_str_arg);
+                            json json_;
+                            shared_on_self->dbclient_->getPostsListById(url_str_arg["id"], id, url_str_arg["LIMIT"], url_str_arg["OFFSET"], json_);
 
                             FormResponse::formResponseJson(shared_on_self->response_, shared_on_self->client_addres, json_);
                         }
@@ -178,10 +191,9 @@ void TcpConnection::handleRequest() {
                             shared_on_self->dbclient_->addNewPost(id, data);
                         }
                         else if (target.find("/deletePost") != std::string::npos) {
-                            std::string post_id;
                             std::unordered_map<std::string, std::string> url_str_arg;
                             FormRequest::URLParser(target, url_str_arg);
-                            shared_on_self->dbclient_->delPostById(url_str_arg[post_id], id);
+                            shared_on_self->dbclient_->delPostById(url_str_arg["post_id"], id);
                         }
                         else if (target.find("/likeClicked") != std::string::npos) {
                             std::unordered_map<std::string, std::string> url_str_arg;
@@ -193,7 +205,10 @@ void TcpConnection::handleRequest() {
                     }
                     catch (const std::exception & e) {
                         std::cerr << e.what() << std::endl;
-                        FormResponse::formResponseError(shared_on_self->response_, shared_on_self->client_addres, http::status::bad_request);
+                        if (!std::strcmp(e.what(), "400")) {
+                            FormResponse::formResponseError(shared_on_self->response_, shared_on_self->client_addres, http::status::bad_request);
+                        }
+                        FormResponse::formResponseError(shared_on_self->response_, shared_on_self->client_addres, http::status::internal_server_error);
                     }
                 }
 
