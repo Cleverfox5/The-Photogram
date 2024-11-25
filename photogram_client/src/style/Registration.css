@@ -22,13 +22,22 @@
     overflow-y: scroll;
     scrollbar-width: none; 
     -ms-overflow-style: none;
+    flex-direction: column;
+}
+
+.registration-form form{
+    display: flex;
+    flex-direction: column;
 }
 
 .registration-form::-webkit-scrollbar {
     display: none;
 }
 
-.form-group {
+.registration-form form .form-group {
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
     margin-bottom: 15px;
 }
 
@@ -36,6 +45,7 @@
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    text-align: center;
 }
 
 .form-group input[type="text"],
@@ -73,6 +83,7 @@
 
 .drop-zone {
     border: 2px dashed #ccc;
+    width: 425px;
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -89,4 +100,8 @@
     margin: 0;
     font-size: 16px;
     color: #666;
+}
+
+.in-registration{
+    width: auto;
 }

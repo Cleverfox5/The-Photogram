@@ -10,7 +10,7 @@ export const privateRoutes = [
     {path: '/profile/:nickname', component: UserProfile, exact: true},
     {path: '/messenger', component: Messenger, exact: true},
     {path: '/friendSearch', component: FriendSearch, exact: true},
-    {path: '/', component: Messenger, exact: true},
+    {path: '/', component: PostsPage, exact: true},
     {path: '/error', component: ErrorPage, exact: true},
     {path: '/postsPage', component: PostsPage, exact: true}
 ]

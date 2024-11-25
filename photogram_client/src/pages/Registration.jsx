@@ -8,13 +8,13 @@ import {toast, ToastContainer} from 'react-toastify';
 
 const Registration = () => {
     const [dataRegistration, setDataRegistration] = useState({
-        firstname: 'Shikamaru',
-        lastname: 'Nara',
+        firstname: 'Obito',
+        lastname: 'Uchiha',
         is_male: 'true',
-        birthdate: '2003-09-22',
-        nickname: 'ShikamaruNara',
-        email: 'shikamaru.nara@konoha.jp',
-        password: 'ShadowJutsu200IQ',
+        birthdate: '1984-02-10',
+        nickname: 'ObitoUchiha',
+        email: 'Obito.Uchiha@konoha.jp',
+        password: 'WithRin123',
         photo: null,
     });
 
@@ -75,11 +75,10 @@ const Registration = () => {
     const handleSendToServer = async (element) => {
         element.preventDefault();
 
-        if (!dataRegistration.photo){
-            throw new Error("Для успешной регистрации - осталось добавить фото");
-        }
-
         try {
+            if (!dataRegistration.photo){
+                throw new Error("Для успешной регистрации - осталось добавить фото");
+            }
             console.log(dataRegistration.password);
             const password = await hashPassword(dataRegistration.password);
             console.log(password);
@@ -127,7 +126,7 @@ const Registration = () => {
             <div ClassName="form-title"><h2>Регистрация</h2></div>
             <form onSubmit={handleSendToServer}>
                 <div
-                    className={`drop-zone ${dragActive ? 'active' : ''}`}
+                    className={`drop-zone in-registration ${dragActive ? 'active' : ''}`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}

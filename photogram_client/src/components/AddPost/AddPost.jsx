@@ -1,15 +1,16 @@
 import React from "react";
 import { useState } from "react";
 import PostService from "../../API/PostService";
-//import "./Addpost.css"
+import "./AddPost.css"
+import { toast, ToastContainer } from 'react-toastify';
 
-const AddPost = () => {
+const AddPost = ({callback}) => {
     const [photoFile, setPhotoFile] = useState(null);
     const [dragActive, setDragActive] = useState(false);
-    
+
     const [desription, setDesription] = useState("");
 
-    
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'photo')
@@ -42,28 +43,34 @@ const AddPost = () => {
     };
 
     const handleSendToServerPhoto = async (element) => {
-        element.preventDefault();
-    
-        if (!photoFile) {
-            throw new Error("Выберите фото");
+        try {
+            element.preventDefault();
+
+            if (!photoFile) {
+                throw new Error("Выберите фото");
+            }
+
+            const formData = new FormData();
+
+            formData.append('description', desription);
+            formData.append('photo', photoFile);
+
+            await PostService.addNewPost(formData);
+            callback(true)
+        }
+        catch (error) {
+            callback(false, error)
         }
 
-        const formData = new FormData();
 
-        formData.append('description', desription);
-        formData.append('photo', photoFile);
-
-        await PostService.addNewPost(formData);
-
-        //document.location.reload();
     }
 
     return (
-        <div>
+        <div className="container">
             <h2>Новый пост</h2>
             <form onSubmit={handleSendToServerPhoto}>
                 <div className="form-group">
-                    <input type="text" id="description" name="description" value={desription} onChange={handleChange} required />
+                    <input type="text" id="description" name="description" autocomplete="off" value={desription} onChange={handleChange}/>
                 </div>
                 <div className="form-group">
                     <div

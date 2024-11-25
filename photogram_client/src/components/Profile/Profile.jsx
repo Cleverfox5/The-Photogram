@@ -5,23 +5,31 @@ import { toast, ToastContainer } from "react-toastify";
 import sodium from 'libsodium-wrappers-sumo';
 import Post from "../Post/Post";
 import AddPost from "../AddPost/AddPost";
+import Loading from "../UI/loading/Loading";
 
 const Profile = ({ user, urlPhotoUser, status_ }) => {
     const [status, setStatus] = useState(status_);
     const [isChangeProfileClick, setIsChangeProfileClick] = useState(false);
     const [mode, setMode] = useState('page');
-    const [text_from_second_server, setTextFromSecondServer] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const removePost = (post_id) => setPosts(posts.filter(p => p.post_id !== post_id))
 
-    const [settings, setSettings] = useState({ limit: 1, offset: 0 });
+    const [settings, setSettings] = useState({ limit: 2, offset: 0 });
     const [posts, setPosts] = useState([]);
     const [isEnough, setIsEnough] = useState(false);
+    const [showPosts, setShowPosts] = useState(false);
     const [isFirst, setIsFirst] = useState(true);
     const paginationElement = useRef();
     const observer = useRef();
 
+    const to_ready_callback = () => {
+        setIsLoading(false)
+    }
+
     useEffect(() => {
         const callback = function (entries, observer) {
             if (!isFirst && !isEnough && entries[0].isIntersecting) {
+                setIsLoading(true);
                 loadMorePosts();
             }
         };
@@ -40,28 +48,30 @@ const Profile = ({ user, urlPhotoUser, status_ }) => {
     }, [isEnough, posts])
 
     const loadMorePosts = async () => {
-        console.log(settings.limit)
-        const postsList = await PostService.getPostsList(settings.limit, settings.offset + settings.limit);
+        setIsLoading(true);
+        const postsList = await PostService.getPostsListById(user.id, settings.limit, posts.length);
         if (!postsList) {
             setIsEnough(true);
+            setIsLoading(false);
         }
         else {
             if (postsList.length < settings.limit) {
                 setIsEnough(true);
             }
             setPosts([...posts, ...postsList]);
-            setSettings({ ...settings, offset: settings.offset + settings.limit });
+            setSettings({ ...settings, offset: posts.length });
         }
     }
 
     const loadPosts = async (element) => {
         element.preventDefault();
+        setIsLoading(true);
         setIsFirst(true);
         try {
             setPosts([]);
             setIsEnough(false);
             console.log(settings);
-            const postsList = await PostService.getPostsList(settings.limit, 0);
+            const postsList = await PostService.getPostsListById(user.id, settings.limit, 0);
             if (postsList) {
                 setPosts(postsList);
                 console.log(postsList);
@@ -72,11 +82,22 @@ const Profile = ({ user, urlPhotoUser, status_ }) => {
                 setSettings({ ...settings, offset: 0 });
                 setIsFirst(false);
             }
+            setShowPosts(true)
         }
         catch (error) {
             console.log(error.message);
         }
         console.log(posts);
+    }
+
+    const serverResult = (is_success, error) => {
+        if (is_success) {
+            toast.success("Вы загрузили новый пост!");
+            document.getElementById("get_photo_btn").click();
+        }
+        else {
+            toast.error(error.message);
+        }
     }
 
 
@@ -221,19 +242,13 @@ const Profile = ({ user, urlPhotoUser, status_ }) => {
 
                 await PostService.updateProfilePassword(password);
             }
+            localStorage.setItem("nickname", dataRegistration.nickname);
             setMode('page')
-            document.location.reload();
+
+            document.getElementById("my_prifile").click();
         } catch (error) {
             toast.error(error.message);
         }
-    }
-
-    const hanldeGetIdFromAnotherServer = async (event) => {
-        event.stopPropagation();
-        const getHelloWorld = async () => {
-            setTextFromSecondServer(await PostService.getDate())
-        }
-        getHelloWorld()
     }
 
     if (!user || !urlPhotoUser) {
@@ -265,29 +280,31 @@ const Profile = ({ user, urlPhotoUser, status_ }) => {
                                 ? <button onClick={delFriend} className="del-btn">Удалить из друзей</button>
                                 : <button onClick={changeProfile} className="edit-profile-btn">Редактировать профиль</button>
                         }
-                        <button onClick={hanldeGetIdFromAnotherServer}>Get Id</button>
                     </div>
-                    {status === 'me'
-                        ? <AddPost />
-                        : <p></p>
-                    }
-                    <div>
-                        <p>{text_from_second_server}</p>
+                    <div className="add-new-post-block">
+                        {status === 'me'
+                            ? <AddPost callback={serverResult} />
+                            : <p></p>
+                        }
                     </div>
-
-                    <button onClick={loadPosts} className="search-button">
-                        Поиск
-                    </button>
 
                     <div className="posts-section">
-                        <h2>Посты</h2>
-                        {posts.length === 0
+                        <button onClick={loadPosts} className="search-button" id="get_photo_btn">
+                            {status === "me"
+                                ? "Мои посты"
+                                : "Посты"
+                            }
+                        </button>
+                        {showPosts && posts.length === 0
                             ?
                             <p className="no-posts">Нет ни одного поста</p>
                             :
                             posts.map(post =>
-                                <Post postData={post} status={status} className="post-item" />
+                                <Post postData={post} status={status} remove={removePost} key={post.post_id} to_ready_callback={to_ready_callback} className="post-item" />
                             )
+                        }
+                        {isLoading &&
+                            <Loading />
                         }
                         <div ref={paginationElement} style={{ height: 20, background: 'white' }}></div>
                     </div>
@@ -315,7 +332,7 @@ const Profile = ({ user, urlPhotoUser, status_ }) => {
                                 <div className="form-title"><h2>Изменение фото</h2></div>
                                 <form onSubmit={handleSendToServerPhoto}>
                                     <div
-                                        className={`drop-zone ${dragActive ? 'active' : ''}`}
+                                        className={`drop-zone in-menue ${dragActive ? 'active' : ''}`}
                                         onDragOver={handleDragOver}
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}

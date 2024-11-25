@@ -110,6 +110,7 @@
 .post-header-left {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .post-avatar {
@@ -140,10 +141,6 @@
   width: 25px;
   height: 25px;
   object-fit: contain;
-}
-.bin:hover{
-  background-color: #e2e2e2;
-  cursor: pointer;
 }
 
 .like {

@@ -17,7 +17,7 @@ const Navbar = () => {
     return (
         <div className='navbar'>
             <div className='top'>
-                <MyButton onClick = {() => navigate(`/profile/${localStorage.getItem('nickname')}`)}>Я</MyButton>
+                <MyButton id="my_prifile" onClick = {() => navigate(`/profile/${localStorage.getItem('nickname')}`)}>Я</MyButton>
                 <MyButton onClick = {() => navigate('/postsPage')}>Лента</MyButton>
                 <MyButton onClick = {() => navigate('/friendSearch')}>Найти друга</MyButton>
             </div>

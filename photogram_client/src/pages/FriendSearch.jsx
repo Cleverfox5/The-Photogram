@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style/FriendSearch.css";
 import FindFriendItem from "../components/FindFriendItem/FindFriendItem";
-import axios from "axios";
 import PostService from "../API/PostService";
 import { toast, ToastContainer } from 'react-toastify';
 
@@ -68,6 +67,10 @@ const FriendSearch = () => {
     console.log(users);
   }
 
+  useEffect(() => {
+      document.getElementById('serch-button').click()
+  }, [])
+
   return (
     <div className="friend-search-container">
       <h2 className="title">Найти друзей</h2>
@@ -80,7 +83,7 @@ const FriendSearch = () => {
             className="search-input"
             required
           />
-          <button onClick={loadUsers} className="search-button">
+          <button id="serch-button" onClick={loadUsers} className="search-button">
             Поиск
           </button>
         </form>

@@ -596,6 +596,39 @@ export default class PostService {
             throw error;
         }
     }
+    static async deletePost(post_id){
+        console.log(`deletePost is lounch with post_id = ${post_id}`)
+        try {
+            let response = await fetch(`http://localhost:8081/deletePost?post_id=${post_id}`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+
+            if (response.status === 401) {
+                const accessToken = await this.refreshAccessToken();
+
+                if (!accessToken) {
+                    throw new Error('RefreshToken is NULL')
+                }
+
+                response = await fetch(`http://localhost:8081/deletePost?post_id=${post_id}`, {
+                    method: "POST",
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+            }
+
+            if (!response.ok) {
+                throw new Error(`Ошибка: ${response.status}`);
+            }
+        } catch (error) {
+            console.log(error)
+            throw error;
+        }
+    }
 
     static async getPostsList(limit, offset) {
         try {
@@ -615,6 +648,44 @@ export default class PostService {
                 }
 
                 response = await fetch(`http://localhost:8081/getPostsList?LIMIT=${limit}&OFFSET=${offset}`, {
+                    method: "Get",
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+            }
+
+            console.log(response);
+
+            if (!response.ok) {
+                throw new Error(`Ошибка: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.log(error)
+            throw error;
+        }
+    }
+
+    static async getPostsListById(id, limit, offset) {//добавить user_id, ну и всё
+        try {
+            console.log("send get request by id")
+            let response = await fetch(`http://localhost:8081/getByIdPostsList?id=${id}&LIMIT=${limit}&OFFSET=${offset}`, {
+                method: "Get",
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+            
+            if (response.status === 401) {
+                const accessToken = await this.refreshAccessToken();
+
+                if (!accessToken) {
+                    throw new Error('RefreshToken is NULL')
+                }
+
+                response = await fetch(`http://localhost:8081/getByIdPostsList?LIMIT=${limit}&OFFSET=${offset}`, {
                     method: "Get",
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`

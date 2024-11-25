@@ -22,7 +22,7 @@ const Router = () => {
                     element={<route.component />}
                 />
             )}
-            <Route path="authorization" element={<Navigate to="/messenger" />} />
+            <Route path="authorization" element={<Navigate to="/postsPage" />} />
             <Route path="*" element={<Navigate to="/error" />} />
         </Routes>
         :

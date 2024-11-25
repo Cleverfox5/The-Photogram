@@ -151,3 +151,19 @@ button {
 .change-profile-content{
     text-align: center;
 }
+
+.add-new-post-block{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-group{
+    display: flex;
+    flex-direction: column;
+}
+.in-menue{
+    width: 100%;
+}
