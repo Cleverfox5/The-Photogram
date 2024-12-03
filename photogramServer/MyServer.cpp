@@ -37,31 +37,14 @@ MyServer::MyServer(short port) : port(port){
 	}
 
 	std::cout << "Server listening on port: " << port << std::endl;
-	/*std::thread stopThread(stopEverything);
-	stopThread.detach();*/
 }
 
 MyServer::~MyServer() {
-	stop();
 	WSACleanup();
 }
 
 void MyServer::run() {
 	std::thread(&MyServer::waitForNewConnection, this).detach();
-}
-
-void MyServer::stop() {
-	isAcceptNewConnection = false;
-	closesocket(serverSocket);
-	for (auto& element : userSocketMap) {
-		SOCKET currSocket = element.second;
-		closesocket(currSocket);
-	}
-	for (auto& thread : threadSet) {
-		if (thread && thread->joinable()) {
-			thread->join();
-		}
-	}
 }
 
 void MyServer::waitForNewConnection() {
@@ -89,23 +72,13 @@ void MyServer::waitForNewConnection() {
 			continue;
 		}
 
-		{
-			std::lock_guard<std::mutex> lock(mutexForSocketMap);
-			userSocketMap[clientAddres] = newConnection;
-		}
-
 		std::cout << "Connection is correct\n";
 
-		std::lock_guard<std::mutex> lock(mutexForThreadSet);
-		threadSet.emplace(std::make_shared<std::thread>(&MyServer::threatForSomeSocket, this, newConnection, clientAddres));
+		std::thread(&MyServer::threatForSomeSocket, this, newConnection, clientAddres).detach();
 	}
 }
 
 void MyServer::threatForSomeSocket(SOCKET clientSocket, std::string clientAddres) {
 	WorkWithClient currClietn(clientSocket, clientAddres);
 	currClietn.run();
-	{
-		std::lock_guard<std::mutex> lock(mutexForSocketMap);
-		userSocketMap.erase(clientAddres);
-	}
 }
